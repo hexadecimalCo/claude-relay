@@ -1,0 +1,18 @@
+{
+  "name": "claude-relay-mcp-bridge",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "MCP stdio server bridging Claude CLI to the relay server",
+  "license": "MIT",
+  "author": "Hexadecimal",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "ws": "^8.16.0",
+    "zod": "^3.22.0",
+    "dotenv": "^16.4.0"
+  }
+}
