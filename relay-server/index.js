@@ -1,11 +1,15 @@
 #!/usr/bin/env node
 import { WebSocketServer } from "ws";
 import { randomUUID } from "node:crypto";
+import { spawn } from "node:child_process";
 import { parseArgs } from "node:util";
 import RoomManager from "./room-manager.js";
 
 const { values: args } = parseArgs({
-  options: { port: { type: "string", short: "p" } },
+  options: {
+    port: { type: "string", short: "p" },
+    ngrok: { type: "boolean", default: false },
+  },
   strict: false,
 });
 const PORT = args.port || process.env.PORT || 8080;
@@ -17,37 +21,111 @@ const peers = new Map();
 
 const wss = new WebSocketServer({ port: PORT });
 
-console.log(`
-╔══════════════════════════════════════════════════╗
-║          Claude Relay Server Started             ║
-╚══════════════════════════════════════════════════╝
-
-  Local:   ws://localhost:${PORT}
-
-  Next steps:
-
-  1. Expose to the internet (if needed):
-     ngrok http ${PORT}
-
-  2. Share these with the other person:
-     - The ngrok URL (e.g. wss://abc123.ngrok.io)
-     - MCP config for their ~/.claude.json:
-
+function printMcpConfig(url) {
+  console.log(`
      {
        "mcpServers": {
          "claude-relay": {
            "type": "stdio",
            "command": "npx",
            "args": ["-y", "@hexadecimalcoltd/claude-relay-bridge"],
-           "env": { "RELAY_URL": "wss://<YOUR_NGROK_URL>" }
+           "env": { "RELAY_URL": "${url}" }
          }
        }
      }
+`);
+}
 
-  3. Open Claude CLI and say:
+function printStartupMessage(ngrokUrl) {
+  console.log(`
+╔══════════════════════════════════════════════════╗
+║          Claude Relay Server Started             ║
+╚══════════════════════════════════════════════════╝
+
+  Local:   ws://localhost:${PORT}`);
+
+  if (ngrokUrl) {
+    console.log(`  Public:  ${ngrokUrl}
+
+  Share these with the other person:
+     - MCP config for their ~/.claude.json:
+`);
+    printMcpConfig(ngrokUrl);
+  } else {
+    console.log(`
+  Next steps:
+
+  1. Expose to the internet:
+     npx @hexadecimalcoltd/claude-relay-server --ngrok
+     (or manually: ngrok http ${PORT})
+
+  2. Share these with the other person:
+     - The ngrok URL (e.g. wss://abc123.ngrok.io)
+     - MCP config for their ~/.claude.json:
+`);
+    printMcpConfig("wss://<YOUR_NGROK_URL>");
+  }
+
+  console.log(`  Open Claude CLI and say:
      "Create a chat room, nickname Alice"
      Then share the pairing code with the other person.
 `);
+}
+
+if (args.ngrok) {
+  const ngrokProc = spawn("ngrok", ["http", String(PORT), "--log", "stdout", "--log-format", "json"], {
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+
+  let started = false;
+
+  ngrokProc.stdout.on("data", (data) => {
+    for (const line of data.toString().split("\n")) {
+      if (!line.trim()) continue;
+      try {
+        const log = JSON.parse(line);
+        if (log.url && log.url.startsWith("https://") && !started) {
+          started = true;
+          const wssUrl = log.url.replace("https://", "wss://");
+          printStartupMessage(wssUrl);
+        }
+      } catch {
+        // not JSON, ignore
+      }
+    }
+  });
+
+  ngrokProc.stderr.on("data", (data) => {
+    const msg = data.toString().trim();
+    if (msg) console.error(`[ngrok] ${msg}`);
+  });
+
+  ngrokProc.on("error", (err) => {
+    if (err.code === "ENOENT") {
+      console.error("\n  ✗ ngrok not found. Install it from https://ngrok.com/download\n");
+    } else {
+      console.error(`\n  ✗ Failed to start ngrok: ${err.message}\n`);
+    }
+    printStartupMessage(null);
+  });
+
+  ngrokProc.on("close", (code) => {
+    if (code && code !== 0) {
+      console.error(`\n  [ngrok] exited with code ${code}\n`);
+    }
+  });
+
+  process.on("SIGINT", () => {
+    ngrokProc.kill();
+    process.exit(0);
+  });
+  process.on("SIGTERM", () => {
+    ngrokProc.kill();
+    process.exit(0);
+  });
+} else {
+  printStartupMessage(null);
+}
 
 wss.on("connection", (ws, req) => {
   const peerId = randomUUID();

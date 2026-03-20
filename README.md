@@ -72,7 +72,14 @@ Then follow the manual setup below.
 
 ### 1. Start the Relay Server
 
-**npm:**
+**With ngrok (recommended — one command does everything):**
+```bash
+npx @hexadecimalcoltd/claude-relay-server --ngrok
+```
+
+This starts the relay server and ngrok together, and prints the public URL + MCP config for the other person.
+
+**Local only (no ngrok):**
 ```bash
 npx @hexadecimalcoltd/claude-relay-server
 ```
@@ -81,29 +88,14 @@ npx @hexadecimalcoltd/claude-relay-server
 ```bash
 cd relay-server
 npm install
-node index.js
+node index.js --ngrok
 ```
 
 Defaults to port `8080`. To use a custom port:
 
 ```bash
-node index.js --port 3000
-# or
-node index.js -p 3000
-# or
-PORT=3000 node index.js
+npx @hexadecimalcoltd/claude-relay-server -p 3000 --ngrok
 ```
-
-### 2. Expose to the Internet (optional)
-
-If the other person is not on the same local network, use ngrok:
-
-```bash
-# Make sure the port matches step 1
-ngrok http 8080
-```
-
-Note down the public URL (e.g. `https://abc123.ngrok.io`).
 
 ### 3. Configure Your MCP
 

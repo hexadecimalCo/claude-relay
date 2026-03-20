@@ -72,7 +72,14 @@ cd claude-relay
 
 ### 1. 啟動 Relay Server
 
-**npm：**
+**搭配 ngrok（推薦，一行搞定）：**
+```bash
+npx @hexadecimalcoltd/claude-relay-server --ngrok
+```
+
+會同時啟動 relay server 和 ngrok，並印出公開 URL 和對方需要的 MCP 設定。
+
+**僅本地（不開 ngrok）：**
 ```bash
 npx @hexadecimalcoltd/claude-relay-server
 ```
@@ -81,29 +88,14 @@ npx @hexadecimalcoltd/claude-relay-server
 ```bash
 cd relay-server
 npm install
-node index.js
+node index.js --ngrok
 ```
 
 預設跑在 port `8080`。可自訂 port：
 
 ```bash
-node index.js --port 3000
-# 或
-node index.js -p 3000
-# 或
-PORT=3000 node index.js
+npx @hexadecimalcoltd/claude-relay-server -p 3000 --ngrok
 ```
-
-### 2. 暴露給外網（可選）
-
-如果對方不在同一個區域網路，需要用 ngrok 暴露：
-
-```bash
-# port 要跟上面啟動的一致
-ngrok http 8080
-```
-
-記下 ngrok 給你的公開 URL（如 `https://abc123.ngrok.io`）。
 
 ### 3. 設定自己的 MCP
 
