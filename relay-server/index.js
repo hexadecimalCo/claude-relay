@@ -72,7 +72,40 @@ function printStartupMessage(ngrokUrl) {
 `);
 }
 
+import { execFileSync } from "node:child_process";
+
+function isNgrokInstalled() {
+  try {
+    execFileSync("ngrok", ["version"], { stdio: "ignore" });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 if (args.ngrok) {
+  if (!isNgrokInstalled()) {
+    console.error(`
+╔══════════════════════════════════════════════════╗
+║  ngrok is not installed                          ║
+╚══════════════════════════════════════════════════╝
+
+  Install ngrok first:
+
+    macOS:   brew install ngrok
+    Linux:   snap install ngrok
+    Windows: choco install ngrok
+    Other:   https://ngrok.com/download
+
+  After installing, authenticate with your ngrok token:
+    ngrok config add-authtoken <YOUR_TOKEN>
+
+  Then try again:
+    npx @hexadecimalcoltd/claude-relay-server --ngrok
+`);
+    process.exit(1);
+  }
+
   const ngrokProc = spawn("ngrok", ["http", String(PORT), "--log", "stdout", "--log-format", "json"], {
     stdio: ["ignore", "pipe", "pipe"],
   });
@@ -98,15 +131,6 @@ if (args.ngrok) {
   ngrokProc.stderr.on("data", (data) => {
     const msg = data.toString().trim();
     if (msg) console.error(`[ngrok] ${msg}`);
-  });
-
-  ngrokProc.on("error", (err) => {
-    if (err.code === "ENOENT") {
-      console.error("\n  ✗ ngrok not found. Install it from https://ngrok.com/download\n");
-    } else {
-      console.error(`\n  ✗ Failed to start ngrok: ${err.message}\n`);
-    }
-    printStartupMessage(null);
   });
 
   ngrokProc.on("close", (code) => {

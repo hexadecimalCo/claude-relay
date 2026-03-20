@@ -1,6 +1,6 @@
 {
   "name": "@hexadecimalcoltd/claude-relay-server",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "WebSocket relay server for Claude-to-Claude communication",
   "license": "MIT",
   "author": "Hexadecimal",
