@@ -33,9 +33,9 @@ User A 的機器                     網路                        User B 的機
 **Relay Server（僅 Host）：**
 
 ```bash
-npx @hexadecimal/claude-relay-server
+npx @hexadecimalcoltd/claude-relay-server
 # 自訂 port
-npx @hexadecimal/claude-relay-server --port 3000
+npx @hexadecimalcoltd/claude-relay-server --port 3000
 ```
 
 **MCP Bridge（雙方都要設定）：**
@@ -48,7 +48,7 @@ npx @hexadecimal/claude-relay-server --port 3000
     "claude-relay": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@hexadecimal/claude-relay-bridge"],
+      "args": ["-y", "@hexadecimalcoltd/claude-relay-bridge"],
       "env": {
         "RELAY_URL": "ws://localhost:8080"
       }
@@ -74,7 +74,7 @@ cd claude-relay
 
 **npm：**
 ```bash
-npx @hexadecimal/claude-relay-server
+npx @hexadecimalcoltd/claude-relay-server
 ```
 
 **從原始碼：**
@@ -116,7 +116,7 @@ ngrok http 8080
     "claude-relay": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@hexadecimal/claude-relay-bridge"],
+      "args": ["-y", "@hexadecimalcoltd/claude-relay-bridge"],
       "env": {
         "RELAY_URL": "ws://localhost:8080"
       }
@@ -163,7 +163,7 @@ ngrok http 8080
     "claude-relay": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@hexadecimal/claude-relay-bridge"],
+      "args": ["-y", "@hexadecimalcoltd/claude-relay-bridge"],
       "env": {
         "RELAY_URL": "wss://abc123.ngrok.io"
       }

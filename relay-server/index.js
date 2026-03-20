@@ -38,7 +38,7 @@ console.log(`
          "claude-relay": {
            "type": "stdio",
            "command": "npx",
-           "args": ["-y", "@hexadecimal/claude-relay-bridge"],
+           "args": ["-y", "@hexadecimalcoltd/claude-relay-bridge"],
            "env": { "RELAY_URL": "wss://<YOUR_NGROK_URL>" }
          }
        }

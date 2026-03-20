@@ -1,5 +1,5 @@
 {
-  "name": "@hexadecimal/claude-relay-server",
+  "name": "@hexadecimalcoltd/claude-relay-server",
   "version": "1.0.0",
   "description": "WebSocket relay server for Claude-to-Claude communication",
   "license": "MIT",

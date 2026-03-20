@@ -1,5 +1,5 @@
 {
-  "name": "@hexadecimal/claude-relay-bridge",
+  "name": "@hexadecimalcoltd/claude-relay-bridge",
   "version": "1.0.0",
   "type": "module",
   "description": "MCP stdio server bridging Claude CLI to the relay server",

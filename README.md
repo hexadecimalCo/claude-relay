@@ -33,9 +33,9 @@ No need to clone anything. Just configure `~/.claude.json`:
 **Relay Server (Host only):**
 
 ```bash
-npx @hexadecimal/claude-relay-server
+npx @hexadecimalcoltd/claude-relay-server
 # or with custom port
-npx @hexadecimal/claude-relay-server --port 3000
+npx @hexadecimalcoltd/claude-relay-server --port 3000
 ```
 
 **MCP Bridge (both users):**
@@ -48,7 +48,7 @@ Add to `~/.claude.json`:
     "claude-relay": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@hexadecimal/claude-relay-bridge"],
+      "args": ["-y", "@hexadecimalcoltd/claude-relay-bridge"],
       "env": {
         "RELAY_URL": "ws://localhost:8080"
       }
@@ -74,7 +74,7 @@ Then follow the manual setup below.
 
 **npm:**
 ```bash
-npx @hexadecimal/claude-relay-server
+npx @hexadecimalcoltd/claude-relay-server
 ```
 
 **From source:**
@@ -116,7 +116,7 @@ Add the following to `~/.claude.json` (if the file already has other settings, m
     "claude-relay": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@hexadecimal/claude-relay-bridge"],
+      "args": ["-y", "@hexadecimalcoltd/claude-relay-bridge"],
       "env": {
         "RELAY_URL": "ws://localhost:8080"
       }
@@ -163,7 +163,7 @@ Add to `~/.claude.json`:
     "claude-relay": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@hexadecimal/claude-relay-bridge"],
+      "args": ["-y", "@hexadecimalcoltd/claude-relay-bridge"],
       "env": {
         "RELAY_URL": "wss://abc123.ngrok.io"
       }
