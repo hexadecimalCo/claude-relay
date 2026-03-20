@@ -1,11 +1,14 @@
 {
-  "name": "claude-relay-server",
+  "name": "@hexadecimal/claude-relay-server",
   "version": "1.0.0",
   "description": "WebSocket relay server for Claude-to-Claude communication",
   "license": "MIT",
   "author": "Hexadecimal",
   "type": "module",
   "main": "index.js",
+  "bin": {
+    "claude-relay-server": "index.js"
+  },
   "scripts": {
     "start": "node index.js"
   },

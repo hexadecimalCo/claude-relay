@@ -1,11 +1,14 @@
 {
-  "name": "claude-relay-mcp-bridge",
+  "name": "@hexadecimal/claude-relay-bridge",
   "version": "1.0.0",
   "type": "module",
   "description": "MCP stdio server bridging Claude CLI to the relay server",
   "license": "MIT",
   "author": "Hexadecimal",
   "main": "index.js",
+  "bin": {
+    "claude-relay-bridge": "index.js"
+  },
   "scripts": {
     "start": "node index.js"
   },

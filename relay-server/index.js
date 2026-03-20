@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { WebSocketServer } from "ws";
 import { randomUUID } from "node:crypto";
 import { parseArgs } from "node:util";
@@ -16,7 +17,37 @@ const peers = new Map();
 
 const wss = new WebSocketServer({ port: PORT });
 
-console.log(`[relay] listening on port ${PORT}`);
+console.log(`
+╔══════════════════════════════════════════════════╗
+║          Claude Relay Server Started             ║
+╚══════════════════════════════════════════════════╝
+
+  Local:   ws://localhost:${PORT}
+
+  Next steps:
+
+  1. Expose to the internet (if needed):
+     ngrok http ${PORT}
+
+  2. Share these with the other person:
+     - The ngrok URL (e.g. wss://abc123.ngrok.io)
+     - MCP config for their ~/.claude.json:
+
+     {
+       "mcpServers": {
+         "claude-relay": {
+           "type": "stdio",
+           "command": "npx",
+           "args": ["-y", "@hexadecimal/claude-relay-bridge"],
+           "env": { "RELAY_URL": "wss://<YOUR_NGROK_URL>" }
+         }
+       }
+     }
+
+  3. Open Claude CLI and say:
+     "Create a chat room, nickname Alice"
+     Then share the pairing code with the other person.
+`);
 
 wss.on("connection", (ws, req) => {
   const peerId = randomUUID();

@@ -22,10 +22,62 @@ User A 的機器                     網路                        User B 的機
 - **Claude CLI**（兩台機器都需要）
 - **ngrok**（僅發起方需要，用於暴露 relay server 給外網）
 
+## 安裝方式
+
+兩種方式擇一，依你的環境選擇。
+
+### 方式 A：npm（推薦）
+
+不需要 clone 任何東西，直接設定即可。
+
+**Relay Server（僅 Host）：**
+
+```bash
+npx @hexadecimal/claude-relay-server
+# 自訂 port
+npx @hexadecimal/claude-relay-server --port 3000
+```
+
+**MCP Bridge（雙方都要設定）：**
+
+在 `~/.claude.json` 加入：
+
+```json
+{
+  "mcpServers": {
+    "claude-relay": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@hexadecimal/claude-relay-bridge"],
+      "env": {
+        "RELAY_URL": "ws://localhost:8080"
+      }
+    }
+  }
+}
+```
+
+### 方式 B：Clone repo
+
+```bash
+git clone https://github.com/hexadecimalCo/claude-relay.git
+cd claude-relay
+```
+
+接著照下方手動設定。
+
+---
+
 ## 快速開始（發起方 / User A）
 
 ### 1. 啟動 Relay Server
 
+**npm：**
+```bash
+npx @hexadecimal/claude-relay-server
+```
+
+**從原始碼：**
 ```bash
 cd relay-server
 npm install
@@ -57,13 +109,14 @@ ngrok http 8080
 
 在 `~/.claude.json` 加入（如果檔案已有其他設定，把 `claude-relay` 加進現有的 `mcpServers` 裡）：
 
+**npm 安裝：**
 ```json
 {
   "mcpServers": {
     "claude-relay": {
       "type": "stdio",
-      "command": "node",
-      "args": ["/Users/你的使用者名稱/path/to/mcp-bridge/index.js"],
+      "command": "npx",
+      "args": ["-y", "@hexadecimal/claude-relay-bridge"],
       "env": {
         "RELAY_URL": "ws://localhost:8080"
       }
@@ -72,12 +125,28 @@ ngrok http 8080
 }
 ```
 
-> **注意**：`args` 裡的路徑必須是絕對路徑。`RELAY_URL` 因為是本機，用 `ws://localhost:8080` 即可（port 要跟步驟 1 一致）。
+**從原始碼：**
+```json
+{
+  "mcpServers": {
+    "claude-relay": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["/absolute/path/to/mcp-bridge/index.js"],
+      "env": {
+        "RELAY_URL": "ws://localhost:8080"
+      }
+    }
+  }
+}
+```
+
+> **注意**：因為是本機，`RELAY_URL` 用 `ws://localhost:8080` 即可（port 要跟步驟 1 一致）。
 
 ### 4. 把以下東西傳給對方
 
-- 整個 `claude-relay/` 資料夾（ZIP 或直接傳）
-- ngrok 的公開 URL（如 `wss://abc123.ngrok.io`）
+- 你的 ngrok 公開 URL（如 `wss://abc123.ngrok.io`）
+- 如果對方不用 npm：也傳 `claude-relay/` 資料夾給他
 
 ---
 
@@ -85,27 +154,36 @@ ngrok http 8080
 
 ### 1. 安裝
 
-確認已安裝 Node.js >= 18 後，執行：
+**npm（只需要 Host 給的 URL）：**
+
+在 `~/.claude.json` 加入：
+```json
+{
+  "mcpServers": {
+    "claude-relay": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@hexadecimal/claude-relay-bridge"],
+      "env": {
+        "RELAY_URL": "wss://abc123.ngrok.io"
+      }
+    }
+  }
+}
+```
+
+**從原始碼（收到資料夾的情況）：**
 
 ```bash
 chmod +x setup.sh
 ./setup.sh
 ```
 
-腳本會自動安裝 `mcp-bridge` 的依賴，並印出 MCP 設定範本。
-
-### 2. 設定 MCP
-
-把 `setup.sh` 印出的 JSON 設定貼到 `~/.claude.json`。
-將 `RELAY_URL` 的值改成發起方給你的 URL：
-
-```
-"RELAY_URL": "wss://abc123.ngrok.io"
-```
+把印出的設定貼到 `~/.claude.json`，並填入 `RELAY_URL`。
 
 > **注意**：ngrok URL 用 `wss://`（有 TLS），不是 `ws://`。
 
-### 3. 驗證
+### 2. 驗證
 
 重新開啟 Claude CLI，應該能在啟動時看到 `claude-relay` MCP server 已載入。
 

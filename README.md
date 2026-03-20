@@ -22,10 +22,62 @@ User A's Machine                Network                    User B's Machine
 - **Claude CLI** (required on both machines)
 - **ngrok** (only needed by the host, to expose the relay server)
 
+## Installation
+
+There are two ways to install — pick whichever suits your setup.
+
+### Option A: npm (recommended)
+
+No need to clone anything. Just configure `~/.claude.json`:
+
+**Relay Server (Host only):**
+
+```bash
+npx @hexadecimal/claude-relay-server
+# or with custom port
+npx @hexadecimal/claude-relay-server --port 3000
+```
+
+**MCP Bridge (both users):**
+
+Add to `~/.claude.json`:
+
+```json
+{
+  "mcpServers": {
+    "claude-relay": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@hexadecimal/claude-relay-bridge"],
+      "env": {
+        "RELAY_URL": "ws://localhost:8080"
+      }
+    }
+  }
+}
+```
+
+### Option B: Clone the repo
+
+```bash
+git clone https://github.com/hexadecimalCo/claude-relay.git
+cd claude-relay
+```
+
+Then follow the manual setup below.
+
+---
+
 ## Quick Start (Host / User A)
 
 ### 1. Start the Relay Server
 
+**npm:**
+```bash
+npx @hexadecimal/claude-relay-server
+```
+
+**From source:**
 ```bash
 cd relay-server
 npm install
@@ -57,6 +109,23 @@ Note down the public URL (e.g. `https://abc123.ngrok.io`).
 
 Add the following to `~/.claude.json` (if the file already has other settings, merge `claude-relay` into the existing `mcpServers`):
 
+**If installed via npm:**
+```json
+{
+  "mcpServers": {
+    "claude-relay": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@hexadecimal/claude-relay-bridge"],
+      "env": {
+        "RELAY_URL": "ws://localhost:8080"
+      }
+    }
+  }
+}
+```
+
+**If cloned from source:**
 ```json
 {
   "mcpServers": {
@@ -72,12 +141,12 @@ Add the following to `~/.claude.json` (if the file already has other settings, m
 }
 ```
 
-> **Note:** The path in `args` must be absolute. Since you're the host, `RELAY_URL` should be `ws://localhost:8080` (adjust the port to match step 1).
+> **Note:** `RELAY_URL` should be `ws://localhost:8080` since you're the host (adjust the port to match step 1).
 
 ### 4. Send the Following to the Other Person
 
-- The entire `claude-relay/` folder (ZIP or direct transfer)
 - Your ngrok public URL (e.g. `wss://abc123.ngrok.io`)
+- If they don't use npm: also send the `claude-relay/` folder
 
 ---
 
@@ -85,25 +154,36 @@ Add the following to `~/.claude.json` (if the file already has other settings, m
 
 ### 1. Install
 
+**npm (just need the URL from the host):**
+
+Add to `~/.claude.json`:
+```json
+{
+  "mcpServers": {
+    "claude-relay": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@hexadecimal/claude-relay-bridge"],
+      "env": {
+        "RELAY_URL": "wss://abc123.ngrok.io"
+      }
+    }
+  }
+}
+```
+
+**From source (if you received the folder):**
+
 ```bash
 chmod +x setup.sh
 ./setup.sh
 ```
 
-The script will check prerequisites, install dependencies, and print the MCP config template.
+Then paste the printed config into `~/.claude.json` and fill in the `RELAY_URL`.
 
-### 2. Configure MCP
+> **Note:** Use `wss://` (with TLS) for ngrok URLs, not `ws://`.
 
-Paste the JSON config printed by `setup.sh` into `~/.claude.json`.
-Replace the `RELAY_URL` value with the URL provided by the host:
-
-```
-"RELAY_URL": "wss://abc123.ngrok.io"
-```
-
-> **Note:** Use `wss://` (TLS) for ngrok URLs, not `ws://`.
-
-### 3. Verify
+### 2. Verify
 
 Restart Claude CLI — you should see `claude-relay` listed as a loaded MCP server.
 
